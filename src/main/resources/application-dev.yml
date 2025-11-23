@@ -1,0 +1,132 @@
+test-env: DEV
+namespace: obp-dev
+
+base-path: /alpha/v1.0
+base-url_inapp: http://localhost:8102
+base-url_inward: http://localhost:8126
+base-url: http://localhost:8180/service
+kong-url: https://internal.dev.alpha-platform.uk
+kong-path: ahb/v1.0
+experience-base-url: https://experience.dev.alpha-platform.uk
+core-base-url: https://10.192.48.16:443
+
+authentication-adapter:
+  path: ${base-url}/alpha-authentication-adapter.${namespace}
+  apiKey: "fb657362-5bbd-410f-9329-11ad57cf6c87"
+  apiKey_disable_device: "5c6cdadd-c6fa-4b65-b8f8-a18876201a09"
+
+idnow-idv-adapter:
+  path: ${base-url}/alpha-idnow-idv-adapter.${namespace}
+  webhook: https://api.dev.alpha-platform.uk/alpha/v1.0
+  apiKey: "e7cb06b2-69c4-4851-8021-786ccc57e0c9"
+
+banking-adapter:
+  base-url_inward: ${base-url_inward}
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  apiKey: "adf63fee-fb4d-4b16-b10b-593097cab5e6"
+  banking-user-password: "8eb0ae96eaf10d9de1f71cd8a15d1a3954821e5ebf81ae9bee383c9fbaee7e01007ad9a6f65acd137c5550b023e55bed1676a1bf70ab773b5a1bf68cb7b18245"
+  banking-user-deviceId: "62765697-eca0-400c-ae4a-ad1bdc5035b7"
+  banking-user-userId: "083ce56d-6b86-3ec6-aed6-fe0e7c61792f"
+  banking-user-accountNumber: "017452868001"
+  banking-user-Base64PrivateKey: "Lxl5YYvpYz2cDxwB9WYK80d0PefBYP2IbWT5Y9LwlFo="
+  banking-user-Base64PublicKey: "A0KjOkyVD8sedWB0DoVDYOCUAOMJzvAm5VNLrFrX+Xij"
+
+
+certificate-service:
+  path: ${base-url}/alpha-certificate-service.${namespace}
+  apiKey: "7df477f4-3998-40c2-a6fa-6ccde8227ad3"
+
+cif-service:
+  path: ${base-url}/ahb-cif-service.${namespace}
+  apiKey: "13e97097-21b8-4485-a472-964e2fa5c0a6"
+
+customer-adapter:
+  path: ${base-url}/alpha-customer-adapter.${namespace}
+  apiKey: "14c8d1af-e752-4e3f-b298-d0b21922d0d1"
+  eligibilityPath: "http://localhost:8124/"
+  sigCapPath: "http://localhost:8195/"
+
+otp-service:
+  path: ${base-url}/alpha-otp-service.${namespace}
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+payment-service:
+  path: ${base-url}/alpha-payment-service.${namespace}
+  #path: http://localhost:8120
+  apiKey: "d803dbd4-af01-4d36-b481-a5bb2bfa5d54"
+  transfer-limit: "1000000000"
+  max-payment-limit: "250000"
+  max-unauth-limit: "50000"
+  dependant-id: "770be52b-8bb2-3f89-8dbc-079f4905d061"
+
+cards:
+  path: ${base-url}/ahb-card-hps-adapter.${namespace}
+  apiKey: "ce765c1b-936b-4197-87f4-c02ba4705f6f"
+  created-card: "4714840000000406"
+  tripledes:
+    decrypt:
+      key: "QUQwRTNGRDU4MEMyNzU0MjIxNjMxNzExNjQ5OTgwMEE=" # IWK
+    encrypt:
+      key: "QkE5OEJGM0IxOTEzRTA5NEUwRTBENTRDMTVEQUEyM0U=" # Decrypted IWK
+
+devsim-service:
+  path: ${base-url}/alpha-development-simulator-service.${namespace}
+  apiKey: "61f5579c-a0ff-4f0f-b871-e3c3369833ea"
+
+iban-service:
+  path: ${base-url}/alpha-iban-adapter.${namespace}
+  apiKey: "08459dad-474f-4d0e-a2b0-9143116c30eb"
+
+sanctions-aml-adapter:
+  path: ${base-url}/ahb-sanctions-aml-adapter.${namespace}
+  apiKey: "017a2dba-289e-4a3d-b316-cea9906c2d5a"
+
+document-adapter:
+  path: ${base-url}/alpha-document-adapter.${namespace}
+  apiKey: "809f1026-f911-4c97-86f7-cb73ef1bc5ae"
+
+utility-payments-adapter:
+  path: ${base-url}/alpha-utility-payments-adapter.${namespace}
+  apiKey: "b5061e6c-a056-4c32-82df-eeb8341829b5"
+  #TODO created value needs updating
+  created: "9955edde-6479-48ce-a192-81ea0390d64b"
+
+temenos:
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  seed-account: "018235835001"
+  creditor-account: "018235835001"
+  creditor-iban: "AE530530000018235835001"
+  legacy-iban: "AE420530000023019467023"
+  tp-account: "AED1299900010002"
+  webhook: https://api.cit.alpha-platform.uk/alpha/v1.0
+  account-balance: ${core-base-url}/AHBirisR20
+
+kong-accounts-service:
+  path: ${kong-url}/${kong-path}/accounts/
+  apiKey: "49b05a5d-36c6-4ed4-98bf-720c2a3414e4"
+#  49b05a5d-36c6-4ed4-98bf-720c2a3414e4
+
+legacy:
+  path: ${base-url}/ahb-legacy-banking-adapter.${namespace}
+  apiKey: "29c42e18-3737-4de5-89c3-948f9a2608fb"
+
+experience:
+  path: ${experience-base-url}
+  apiKey: "ce765c1b-936b-4197-87f4-c02ba4705f6f"
+  experienceDevPath: "https://experience.dev.alpha-platform.uk"
+  apiKey_1: "974884a2-15cf-4a77-8626-70466934b9cb"
+  env: dev
+  kong-url: https://internal.dev.alpha-platform.uk
+
+inapp:
+  path: ${base-url_inapp}
+  apiKey: "d8d4a69e-beb6-4878-be50-ee3455fc09f9"
+  experienceDevPath: "https://experience.dev.alpha-platform.uk"
+  env: dev
+  kong-url: https://internal.dev.alpha-platform.uk
+
+uaepass:
+  uaepass-path: https://ahbnprddev.api.crm15.dynamics.com/api/data/v9.2/ahb_idvs
+  apiKey: "ec9c7211-f942-40e4-8823-38e9edeb7955"
+  uaepassprefer: "return=representation"
+  uaepass-accesstoken: "https://login.microsoftonline.com/45c92451-82e1-43f5-b961-f83da9d44191/oauth2/v2.0/token"

@@ -1,0 +1,151 @@
+micronaut:
+  io:
+    watch:
+      paths: /vault/secrets
+      restart: true
+  application:
+    name: 'ahb-dtp-test-framework.${MN_ENVIRONMENT:local}'
+  security:
+    internal-filter-relay:
+      disabled: true
+    token:
+      enabled: false
+      api-key:
+        enabled: false
+    oauth2:
+      enabled: false
+    session:
+      enabled: false
+    basic-auth:
+      enabled: false
+  http:
+    client:
+      read-timeout: 120s
+  router:
+    static-resources:
+      swagger:
+        paths: classpath:META-INF/swagger
+        mapping: /swagger/**
+      swagger-ui:
+        paths: classpath:META-INF/swagger/views/swagger-ui
+        mapping: /swagger-ui/**
+  openapi:
+    views:
+      spec: "swagger-ui.enabled=true,swagger-ui.theme=flattop"
+  metrics:
+    enabled: true
+    export:
+      prometheus:
+        enabled: true
+        step: PT1M
+        descriptions: true
+    tags:
+      application: ${micronaut.application.name}
+  caches:
+    discovery-client:
+      enabled: false
+
+jackson:
+  property-naming-strategy: UPPER_CAMEL_CASE
+
+base-path: /alpha/v1.0
+base-url: http://localhost:8180/service
+
+authentication-adapter:
+  path: ${base-url}/alpha-authentication-adapter.obp-dev
+  apiKey: "8d6153d6-8271-4efd-b093-c3196fbcc073"
+
+idnow-idv-adapter:
+  path: ${base-url}/alpha-idnow-idv-adapter.obp-dev
+  webhook: https://api.dev.alpha-platform.uk/alpha/v1.0
+  apikey: ""
+
+banking-adapter:
+  path: ${base-url}/alpha-temenos-banking-adapter.obp-dev
+  apiKey: "8d6153d6-8271-4efd-b093-c3196fbcc073"
+  banking-user-password: "fa1c89a7e59e625a625425a5cb4b715716e7fdb1d128a52fa65d6e2a8a0cd0e36888edbf2547a01611c70dde37ade1a8ef0bd783f0c2d962bab093630cf5bf20"
+  banking-user-deviceId: "ec20a582-e69e-4af0-9e96-2d4d025868db"
+  banking-user-userId: "5fb6d330-61d0-3e4c-8802-5a44f91e2414"
+  banking-user-accountNumber: "018750072001"
+
+certificate-service:
+  path: ${base-url}/alpha-certificate-service.obp-dev
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+
+cif-service:
+  path: ${base-url}/ahb-cif-service.obp-dev
+  apiKey: ""
+
+customer-adapter:
+  path: ${base-url}/alpha-customer-adapter.obp-dev
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+
+otp-service:
+  path: ${base-url}/alpha-otp-service.obp-dev
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+payment-service:
+  path: ${base-url}/alpha-payment-service.obp-dev
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+  transfer-limit: "1000000000"
+  max-payment-limit: "250000"
+  max-unauth-limit: "50000"
+  dependant-id: "undefined"
+
+cards:
+  path: ${base-url}/ahb-dtp-card-hps-adapter.obp-dev
+  apiKey: "0b7c416a-e9d0-4130-ad04-b365ba6c838a"
+  created-card: "4714840000000406"
+  tripledes:
+    decrypt:
+      key: "MzAyRUNGRURBRDVDMEU3NzJGMEY2MUJCRUYxMkQ0ODk=" # IWK
+    encrypt:
+      key: "NTRDQkU2M0VCQTk4NkU4QzBFOTE0QzhGODAwODBFNzU=" # IWK To Encrypt
+
+beneficiary:
+  internal-flag: al_hilal
+  international-flag: other_bank
+  domestic-flag: domestic_bank
+
+devsim-service:
+  path: ${base-url}/alpha-development-simulator-service.obp-dev
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+iban-service:
+  path: ${base-url}/alpha-iban-adapter.obp-dev
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+sanctions-aml-adapter:
+  path: ${base-url}/ahb-sanctions-aml-adapter.obp-dev
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+document-adapter:
+  path: ${base-url}/alpha-document-adapter.${namespace}
+  apiKey: ""
+
+utility-payments-adapter:
+  path: ${base-url}/alpha-utility-payments-adapter.${namespace}
+  apiKey: ""
+  created: "9955edde-6479-48ce-a192-81ea0390d64b"
+
+application:
+  version: 1.0.1
+  tag: 1.0.1
+
+endpoints:
+  prometheus:
+    enabled: true
+    sensitive: false
+
+
+logger:
+  levels:
+    uk.co.deloitte: ${LOG_LEVEL_DELOITTE:WARN}
+    uk.co.deloitte.banking.ahb.dtp.test.util: INFO
+    io.micronaut.http.client: WARN
+    io.micronaut.kubernetes: ${LOG_LEVEL_MN_KUBE:WARN}
+    io.micronaut.security: ${LOG_LEVEL_MN_SECURITY:WARN}
+    io.lettuce.core: ${LOG_LEVEL_REDIS:WARN}
+    uk.co.deloitte.banking.http.filters: WARN
+    io.netty.util.ResourceLeakDetector: "OFF"
+    curl: DEBUG

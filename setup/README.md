@@ -1,0 +1,8 @@
+
+
+
+```
+
+
+psql -U alpha postgres
+```

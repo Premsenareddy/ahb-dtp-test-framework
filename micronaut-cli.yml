@@ -1,0 +1,5 @@
+profile: service
+defaultPackage: alpha.test.microservice
+---
+testFramework: junit
+sourceLanguage: java

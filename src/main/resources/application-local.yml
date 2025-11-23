@@ -1,0 +1,85 @@
+test-env: DEV
+namespace: obp-local
+
+base-path: /alpha/v1.0
+base-url: http://localhost:8180/service
+kong-url: https://internal.cit.alpha-platform.uk
+kong-path: ahb/v1.0
+
+authentication-adapter:
+  path: ${base-url}/alpha-authentication-adapter.${namespace}
+  apiKey: "8d6153d6-8271-4efd-b093-c3196fbcc073"
+
+idnow-idv-adapter:
+  path: ${base-url}/alpha-idnow-idv-adapter.${namespace}
+  apiKey: "e7cb06b2-69c4-4851-8021-786ccc57e0c9"
+
+banking-adapter:
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  apiKey: "72a7452d-06e9-4d78-9d98-5c6be11d0896"
+  banking-user-password: "fa1c89a7e59e625a625425a5cb4b715716e7fdb1d128a52fa65d6e2a8a0cd0e36888edbf2547a01611c70dde37ade1a8ef0bd783f0c2d962bab093630cf5bf20"
+  banking-user-deviceId: "ec20a582-e69e-4af0-9e96-2d4d025868db"
+  banking-user-userId: "5fb6d330-61d0-3e4c-8802-5a44f91e2414"
+  banking-user-accountNumber: "018750072001"
+
+certificate-service:
+  path: ${base-url}/alpha-certificate-service.${namespace}
+  apiKey: "ce62881e-8b27-4d9e-ad33-0e4f9f723f0e"
+
+cif-service:
+  path: ${base-url}/ahb-cif-service.${namespace}
+  apiKey: ""
+
+customer-adapter:
+  path: ${base-url}/alpha-customer-adapter.${namespace}
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+
+otp-service:
+  path: ${base-url}/alpha-otp-service.${namespace}
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+payment-service:
+  path: ${base-url}/alpha-payment-service.${namespace}
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+  transfer-limit: "1000000000"
+  max-payment-limit: "250000"
+  max-unauth-limit: "50000"
+  dependant-id: "770be52b-8bb2-3f89-8dbc-079f4905d061"
+
+
+devsim-service:
+  path: ${base-url}/alpha-development-simulator-service.${namespace}
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+iban-service:
+  path: ${base-url}/alpha-iban-adapter.${namespace}
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+sanctions-aml-adapter:
+  path: ${base-url}/ahb-sanctions-aml-adapter.${namespace}
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+document-adapter:
+  path: ${base-url}/alpha-document-adapter.${namespace}
+  apiKey: ""
+
+utility-payments-adapter:
+  path: ${base-url}/alpha-utility-payments-adapter.${namespace}
+  apiKey: ""
+  created: "9955edde-6479-48ce-a192-81ea0390d64b"
+
+temenos:
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  seed-account: "91014"
+  creditor-account: "125757"
+  creditor-iban: "AE310530000011070400001"
+  legacy-iban: "AE420530000023019467023"
+  tp-account: "AED1299900010002"
+
+kong-accounts-service:
+  path: ${kong-url}/${kong-path}/accounts/
+  apiKey: "49b05a5d-36c6-4ed4-98bf-720c2a3414e4"
+
+legacy:
+  #path: http://localhost:8998
+  path: ${base-url}/ahb-legacy-banking-adapter.${namespace}

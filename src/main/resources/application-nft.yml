@@ -1,0 +1,112 @@
+test-env: NFT
+namespace: obp-nft
+
+base-path: /alpha/v1.0
+base-url: http://localhost:8180/service
+base-url_inapp: http://localhost:8102
+kong-url: https://internal.nft.alpha-platform.uk
+kong-path: ahb/v1.0
+
+
+authentication-adapter:
+  path: ${base-url}/alpha-authentication-adapter.${namespace}
+  apiKey: "e3b2226e-0b04-492b-8acc-f5ed954fdf6b"
+
+idnow-idv-adapter:
+  path: ${base-url}/alpha-idnow-idv-adapter.${namespace}
+  webhook: https://api.nft.alpha-platform.uk/alpha/v1.0
+  apiKey: ""
+
+banking-adapter:
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  apiKey: "7bd3ed87-5fca-4bc3-b786-53cf51319798"
+#  Needs updating with NFT customer
+  banking-user-password: "aaa6f3f80e47f466e2df417c714032d4df78dea73a241e740bd8dda98766dab64afed2c7a3c89bc42ffa950afe9d4f838aea28d8ba8baa1d1b5bbbf84e821b00"
+  banking-user-deviceId: "7c17204e-c7b1-41c5-8c7b-2b92643fc7ab"
+  banking-user-userId: "f953811d-d90a-3b3f-a698-9b560bcc0b27"
+  banking-user-accountNumber: "013406522002"
+  banking-user-Base64PrivateKey: "AIT5IYCyh1BiSnBZ/gj78toLgp5sijL6fxalroE9kvUS"
+  banking-user-Base64PublicKey: "A2rqjULIfQ/18rni/Iu4zkGy5g7/x/GTf+xEUA+K1wYY"
+
+certificate-service:
+  path: ${base-url}/alpha-certificate-service.${namespace}
+  apiKey: "c340a160-6c2b-4f89-bcc1-e42424c0370a"
+
+cif-service:
+  path: ${base-url}/ahb-cif-service.${namespace}
+  apiKey: "1bb6de19-f824-4723-8985-7e1e366ee23d"
+
+customer-adapter:
+  path: ${base-url}/alpha-customer-adapter.${namespace}
+  apiKey: "e7c1f6f1-e639-40f6-9c0d-cfb21fa0c546"
+
+otp-service:
+  path: ${base-url}/alpha-otp-service.${namespace}
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+payment-service:
+  path: ${base-url}/alpha-payment-service.${namespace}
+  apiKey: "e463e0c9-9d28-4de5-9079-4288200a5c7e"
+  transfer-limit: "50000"
+  max-payment-limit: "250000"
+  max-unauth-limit: "50000"
+  dependant-id: "770be52b-8bb2-3f89-8dbc-079f4905d061"
+
+cards:
+  path: ${base-url}/ahb-card-hps-adapter.${namespace}
+  apiKey: "9aa380e0-679d-406c-900e-69de28ba244d"
+  created-card: "4714840000006204"
+  tripledes:
+    decrypt:
+      key: "MzAyRUNGRURBRDVDMEU3NzJGMEY2MUJCRUYxMkQ0ODk=" # IWK
+    encrypt:
+      key: "NTRDQkU2M0VCQTk4NkU4QzBFOTE0QzhGODAwODBFNzU=" # IWK To Encrypt
+
+devsim-service:
+  path: ${base-url}/alpha-development-simulator-service.${namespace}
+  apiKey: "258dd79e-725c-4221-953d-4eb45dc0acd2"
+
+iban-service:
+  path: ${base-url}/alpha-iban-adapter.${namespace}
+  apiKey: "a8bb0e14-b4ad-47e2-a439-12a0f8775d39"
+
+sanctions-aml-adapter:
+  path: ${base-url}/ahb-sanctions-aml-adapter.${namespace}
+  apiKey: ""
+
+document-adapter:
+  path: ${base-url}/alpha-document-adapter.${namespace}
+  apiKey: "7350fc52-c8f9-48e6-9e90-dc79863fc49f"
+
+utility-payments-adapter:
+  path: ${base-url}/alpha-utility-payments-adapter.${namespace}
+  apiKey: "0873d806-6eb3-4c5b-b206-8d1b8380733a"
+  created: "9955edde-6479-48ce-a192-81ea0390d64b"
+
+temenos:
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  seed-account: "013406522022"
+  creditor-account: "013406522022"
+  creditor-iban: "AE570530000013406522022"
+  legacy-iban: "AE570530000013406522022"
+  tp-account: "AED1299900010002"
+
+kong-accounts-service:
+  path: ${kong-url}/${kong-path}/accounts/
+  apiKey: "49b05a5d-36c6-4ed4-98bf-720c2a3414e4"
+
+legacy:
+  path: ${base-url}/ahb-legacy-banking-adapter.${namespace}
+
+uaepass:
+  uaepass-path: https://ahbnprdnft.api.crm15.dynamics.com/api/data/v9.2/ahb_idvs
+  apiKey: "ec9c7211-f942-40e4-8823-38e9edeb7955"
+  uaepassprefer: "return=representation"
+  uaepass-accesstoken: "https://login.microsoftonline.com/45c92451-82e1-43f5-b961-f83da9d44191/oauth2/v2.0/token"
+
+inapp:
+  path: ${base-url_inapp}
+  apiKey: "974884a2-15cf-4a77-8626-70466934b9cb"
+  experienceDevPath: "https://experience.nft.alpha-platform.uk"
+  env: nft
+  kong-url: https://internal.nft.alpha-platform.uk

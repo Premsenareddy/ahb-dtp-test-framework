@@ -1,0 +1,11 @@
+micronaut:
+  config-client:
+    enabled: true
+kubernetes:
+  client:
+    config-maps:
+      watch: false
+    discovery:
+      enabled: false
+    secrets:
+      enabled: false

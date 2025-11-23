@@ -1,0 +1,138 @@
+buildscript {
+    repositories {
+        mavenLocal()
+        maven { url 'https://plugins.gradle.org/m2/' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath 'uk.co.deloitte.alpha.build:AlphaCommonPlugin:15.6.2'
+    }
+}
+
+plugins {
+    // The following line allows to load io.gatling.gradle plugin and directly apply it
+    id 'io.gatling.gradle' version '3.5.1'
+}
+
+
+ext {
+    minCodeCoverage = 0.0
+}
+
+
+apply plugin: 'AlphaCommonPlugin'
+apply plugin: "com.palantir.git-version"
+
+version gitVersion()
+
+version "0.1"
+group "ahb.dtp.test.framework"
+
+mainClassName = "uk.co.deloitte.banking.ahb.dtp.test.Application"
+
+
+configurations {
+//    Turn off kafka and redis
+    runtime.exclude group: 'io.micronaut.kafka', module: 'micronaut-kafka'
+    runtime.exclude group: 'io.micronaut.redis', module: 'micronaut-redis-lettuce'
+    runtime.exclude group: 'io.micronaut.security', module: 'micronaut-security-jwt'
+
+}
+
+dependencies {
+
+
+    //------- Alpha ----------
+
+    compile "uk.co.deloitte.banking.account.api:banking-account-api-lib:1.7.21"
+    compile "uk.co.deloitte.banking.customer.api:banking-customer-api-lib:1.7.13"
+    implementation group: 'uk.co.deloitte.alpha.error', name: 'alpha-error-handling-library', version: '15.3.11'
+
+
+    gatlingImplementation "uk.co.deloitte.banking.account.api:banking-account-api-lib:1.7.21"
+    gatlingImplementation "uk.co.deloitte.banking.customer.api:banking-customer-api-lib:1.7.13"
+
+    compile group: 'uk.co.deloitte.alpha.http', name: 'alpha-http-mn-library', version: '15.5.1'
+
+    implementation "io.rest-assured:rest-assured:${restAssuredVersion}"
+    implementation 'com.github.dzieciou.testing:curl-logger:2.0.1'
+
+    runtimeOnly("io.jaegertracing:jaeger-thrift")
+    // ----------- Test
+    implementation 'org.json:json:20210307'
+    implementation 'org.assertj:assertj-core:3.6.2'
+    implementation "io.micronaut:micronaut-inject-java"
+    implementation "io.micronaut.test:micronaut-test-junit5"
+    implementation "org.mockito:mockito-junit-jupiter:2.25.1"
+    implementation "org.junit.jupiter:junit-jupiter-engine"
+
+    implementation "org.hamcrest:hamcrest-all:1.3"
+
+    implementation "uk.co.deloitte.alpha.test:alpha-test-library:15.1.+"
+
+    implementation 'org.mock-server:mockserver-netty:5.11.1'
+
+    implementation 'org.assertj:assertj-core:3.6.2'
+    implementation 'org.json:json:20210307'
+
+    implementation 'org.apache.pdfbox:pdfbox:2.0.23'
+
+
+
+    //------- Test Container ----------
+    implementation "org.testcontainers:junit-jupiter:1.15.1"
+    gatlingImplementation "org.testcontainers:junit-jupiter:1.15.1"
+
+    //Minimum version which works on osx docker 2.4.0.0
+    implementation "org.testcontainers:kafka:1.15.1"
+    implementation 'org.awaitility:awaitility:3.1.6'
+    implementation 'io.rest-assured:rest-assured:4.1.2'
+
+    testCompile("org.junit.jupiter:junit-jupiter-params:5.6.2")
+    compile group: 'net.minidev', name: 'json-smart', version: '1.1.1'
+
+    //------- Security -------
+    implementation "com.nimbusds:nimbus-jose-jwt:8.0"
+    gatlingImplementation "com.nimbusds:nimbus-jose-jwt:8.0"
+
+}
+
+tasks.withType(Test) {
+    testLogging {
+        events = ["passed", "failed", "skipped"]
+        exceptionFormat "full"
+        info.events = ["failed", "skipped"]
+
+        showStandardStreams = true
+    }
+
+//    systemProperties['junit.jupiter.execution.parallel.enabled'] = true
+//    systemProperties['junit.jupiter.execution.parallel.mode.default'] = 'concurrent'
+//    systemProperties['junit.jupiter.execution.parallel.mode.default.classes'] = 'concurrent'
+
+//    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+}
+
+task testWithTags(type: Test) {
+    description = 'Runs tagged E2E tests'
+    useJUnitPlatform()
+
+    String itags = System.getProperty("includeTags") ?
+            System.getProperty("includeTags") : 'default';
+    String etags = System.getProperty("excludeTags") ?
+            System.getProperty("excludeTags") : 'default';
+    useJUnitPlatform{
+        includeTags  itags
+        excludeTags  etags
+    }
+}
+
+gatling {
+    // WARNING: options below only work when logback config file isn't provided
+    logLevel = 'WARN' // logback root level
+    logHttp = 'NONE' // set to 'ALL' for all HTTP traffic in TRACE, 'FAILURES' for failed HTTP traffic in DEBUG
+}
+
+shadowJar {
+    zip64 true
+}

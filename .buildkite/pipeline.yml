@@ -1,0 +1,532 @@
+env:
+  APP_IMAGE_NAME: "ahb-dtp-test-framework"
+  CICD_SCRIPTS_VERSION: "v15-0-0"
+steps:
+  - label: ":java: Compile code"
+    if: build.branch != 'main' && (build.branch =~ /^feature\// || build.branch =~ /^bugfix\//)
+    command:
+      - "./gradlew clean compileJava compileTestJava"
+    timeout_in_minutes: 5
+    agents:
+      queue: "${APP_BUILD_QUEUE}"
+  - label: ":large_blue_circle: Validate kubernetes config"
+    if: build.branch == 'main' && build.env("SKIP_DEPLOYMENT") == "false" || build.branch =~ /^feature\// && build.env("SKIP_DEPLOYMENT") == "false"
+    command:
+      - "/build_scripts/${CICD_SCRIPTS_VERSION}/app/kubernetes-config-validation.sh"
+    timeout_in_minutes: 2
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - label: ":package: Build feature branch :whale:"
+    if: build.branch =~ /^feature\// && build.env("SKIP_DEPLOYMENT") == "false"
+    command:
+      - "/build_scripts/${CICD_SCRIPTS_VERSION}/app/replace-docker-image.sh"
+      - "/build_scripts/${CICD_SCRIPTS_VERSION}/app/build.sh"
+    timeout_in_minutes: 20
+    agents:
+      queue: "${APP_BUILD_QUEUE}"
+  - block: "Build feature branch to environment :rocket:"
+    if: build.branch =~ /^feature\// && build.env("SKIP_DEPLOYMENT") == "false"
+    fields:
+      - select: "Environment"
+        key: "deploy-env"
+        hint: "Which environment to deploy to? :name_badge:"
+        options:
+          - label: "Dev"
+            value: "dev"
+
+  - label: ":package: Deploy feature branch :whale:"
+    if: build.branch =~ /^feature\// && build.env("SKIP_DEPLOYMENT") == "false"
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      #      - "scripts/create-istio-config.sh"
+      - "/build_scripts/${CICD_SCRIPTS_VERSION}/app/deploy-env.sh"
+    timeout_in_minutes: 20
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+
+
+  - label: ":package: Build and create container image :whale:"
+    if: build.branch == 'main' && build.env("SKIP_DEPLOYMENT") == "false"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    command:
+      - "/build_scripts/${CICD_SCRIPTS_VERSION}/app/replace-docker-image.sh"
+      - "/build_scripts/${CICD_SCRIPTS_VERSION}/app/build.sh"
+    timeout_in_minutes: 20
+    agents:
+      queue: "${APP_BUILD_QUEUE}"
+  - wait
+  - label: ":package: Deploy to dev :rocket:"
+    if: build.branch == 'main' && build.env("SKIP_DEPLOYMENT") == "false"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    env:
+      ENV: "dev"
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      #      - "scripts/create-istio-config.sh"
+      - "/build_scripts/${CICD_SCRIPTS_VERSION}/app/deploy.sh dev"
+    timeout_in_minutes: 20
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - wait
+
+
+  - label: ":large_green_circle: Smoke tests"
+    if: build.branch == 'main' && build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean testWithTags --tests uk.co.deloitte.banking.journey.scenarios.adult.AdultBankingCustomerScenario -DincludeTags='smoke'"
+      - "./gradlew clean testWithTags --tests uk.co.deloitte.banking.journey.scenarios.common.* -DincludeTags='smoke'"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  #  - wait
+  - label: ":large_green_circle:  Banking OnBoarding"
+    if: build.branch == 'main' && build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean testWithTags --tests uk.co.deloitte.banking.journey.scenarios.adult.AdultBankingCustomerScenario -DincludeTags='customer'"
+      - "./gradlew testWithTags --tests uk.co.deloitte.banking.journey.scenarios.adult.AdultBankingCustomerScenario -DincludeTags='customer | account | beneficiary'"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_green_circle:  CRM"
+    if: build.branch == 'main' && build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.journey.scenarios.adult.AdultMarketplaceCustomerOnScenario"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_green_circle:  Kids Marketplace"
+    if: build.branch == 'main' && build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.journey.scenarios.family.ChildMarketplaceCustomerScenario"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_orange_circle:  Kids Banking"
+    if: build.branch == 'main' && build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.journey.scenarios.family.ChildBankingCustomerScenario"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  #  - wait
+  #Customer tests
+  - label: ":large_blue_circle: Customer AML & Cases"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.customer.aml.* --tests uk.co.deloitte.banking.customer.cases.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_orange_circle:  Banking Customer CoreBanking"
+    if: build.branch == 'main' && build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew testWithTags --tests uk.co.deloitte.banking.journey.scenarios.adult.AdultBankingCustomerScenario -DincludeTags='customer | account | card | payment'"
+    timeout_in_minutes: 45
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_orange_circle: Customer Child"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.customer.child.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+
+  - label: ":large_blue_circle: Customer CIF"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.customer.cif.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_blue_circle: Customer Authentication & Refresh Token"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.customer.authentication.* --tests uk.co.deloitte.banking.customer.refreshtoken.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_blue_circle: Customer Employments & FATCAs & Residential Addresses & Tax Residency"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.customer.employment.* --tests uk.co.deloitte.banking.customer.fatca.* --tests uk.co.deloitte.banking.customer.residentialaddress.* --tests uk.co.deloitte.banking.customer.taxresidency.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_orange_circle: Customer IDNow & OTP"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.customer.idnow.* --tests uk.co.deloitte.banking.customer.otp.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 0
+
+  - label: ":large_blue_circle: Customer Profile"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.customer.profile.*"
+    timeout_in_minutes: 35
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+  #End of customer tests
+
+  - label: ":large_orange_circle: Beneficiary Payments"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.payments.beneficiary.* --tests uk.co.deloitte.banking.payments.certificate.* --tests uk.co.deloitte.banking.payments.iban.* --tests uk.co.deloitte.banking.payments.serviceProviderBeneficiary.* --tests uk.co.deloitte.banking.payments.serviceProviderBeneficiary.stepUp.* --tests uk.co.deloitte.banking.payments.serviceProviderBeneficiary.journey.*"
+    timeout_in_minutes: 35
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 0
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_orange_circle: Payment"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.payments.transfer.* "
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 0
+    soft_fail:
+      - exit_status: 1
+      - exit_status: 3
+      - exit_status: 255
+
+  - label: ":large_blue_circle: Documents"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean testWithTags -DincludeTags='Documents'"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_orange_circle: Cards"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.cards.scenarios.journey.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_orange_circle: Virtual Cards Kids"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.cards.scenarios.kids.virtual.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_orange_circle: Physical Cards Kids"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.cards.scenarios.kids.physical.*"
+    timeout_in_minutes: 25
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_orange_circle: Update Cards Kids"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.cards.scenarios.kids.updates.*"
+    timeout_in_minutes: 35
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 0
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_orange_circle: Cards internal & protected"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.cards.scenarios.internalEndpoints.* --tests uk.co.deloitte.banking.cards.scenarios.protectedEndpoints.*"
+    timeout_in_minutes: 35
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 0
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_blue_circle: ${TAG_NAME}"
+    if: build.env("RUN_TEST_WITH_TAGS") == "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean testWithTags -DincludeTags='${TAG_NAME}'"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - label: ":large_orange_circle: AHB Banking"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.banking.* "
+    timeout_in_minutes: 45
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+    soft_fail:
+      - exit_status: 1
+
+  - label: ":large_green_circle:  Kong Smoke"
+    if: build.branch == 'main' && build.env("SKIP_TESTS") == "false" && build.env("RUN_TEST_WITH_TAGS") != "true"
+    command:
+      - "echo K8S_NAMESPACE: ${K8S_NAMESPACE}"
+      - "echo MICRONAUT_ENVIRONMENTS: ${MICRONAUT_ENVIRONMENTS}"
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/init.sh"
+      - "sh startPortForwardProxy.sh"
+      - "sleep 10"
+      - "./gradlew clean test --tests uk.co.deloitte.banking.kong.accounts.scenarios.* "
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+    retry:
+      automatic:
+        - exit_status: "*"
+          limit: 1
+
+  - wait: ~
+    continue_on_failure: true
+  - label: " Cleanup"
+    if: build.branch == 'main' &&  build.env("SKIP_TESTS") == "false"
+    command:
+      - "sh stopPortForward.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"

@@ -1,0 +1,15 @@
+package ahb.experience.onboarding.request.misc;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder(toBuilder = true)
+@AllArgsConstructor
+@NoArgsConstructor
+public class Privileges {
+    private String identifier;
+    private Boolean permitted;
+}

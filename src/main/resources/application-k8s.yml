@@ -1,0 +1,14 @@
+redis:
+  uri: ${CACHE_WRITE_URL}
+  servers:
+    read:
+      uri: ${CACHE_READ_URL}
+    read-write:
+      uri: ${CACHE_WRITE_URL}
+  caches:
+    users-session:
+      name: ${ENV}-users-session-cache
+    discovery-client:
+      expire-after-write: 24h
+
+namespace: '${PROJECT_NAME}-${MN_ENVIRONMENT}'

@@ -1,0 +1,82 @@
+
+test-env: CIT
+
+base-path: /alpha/v1.0
+base-url: http://localhost
+#apiKey: d8d4a69e-beb6-4878-be50-ee3455fc09f9
+#apiKey:  "8d6153d6-8271-4efd-b093-c3196fbcc073"
+
+authentication-adapter:
+  path: ${base-url}:8110
+  apiKey: "8d6153d6-8271-4efd-b093-c3196fbcc073"
+
+idnow-idv-adapter:
+  path: ${base-url}:8200
+
+banking-adapter:
+  path: ${base-url}:8126
+  apiKey: "72a7452d-06e9-4d78-9d98-5c6be11d0896"
+  banking-user-password: ""
+  banking-user-deviceId: ""
+  banking-user-userId: ""
+  banking-user-accountNumber: ""
+
+certificate-service:
+  path: ${base-url}:8138
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+
+cif-service:
+  path: ${base-url}:8997
+  apiKey: ""
+
+customer-adapter:
+  path: ${base-url}:8102
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+
+otp-service:
+  path: ${base-url}:8108
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+payment-service:
+  path: ${base-url}:8120
+  apiKey: "ca41a51b-9227-48cc-ac76-f93649df5abc"
+  transfer-limit: "1000000000"
+  max-payment-limit: "250000"
+  max-unauth-limit: "50000"
+  dependant-id: "770be52b-8bb2-3f89-8dbc-079f4905d061"
+
+cards:
+  path: ${base-url}:8998
+  apiKey: "0b7c416a-e9d0-4130-ad04-b365ba6c838a"
+  created-card: "4714840000000406"
+
+devsim-service:
+  path: ${base-url}:8199
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+iban-service:
+  path: ${base-url}:8121
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+sanctions-aml-adapter:
+  path: ${base-url}:8222
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+document-adapter:
+  path: ${base-url}:8140
+  apiKey: ""
+
+utility-payments-adapter:
+  path: ${base-url}:8154
+  apiKey: ""
+  created: "9955edde-6479-48ce-a192-81ea0390d64b"
+
+temenos:
+  path: ${base-url}:8126
+  seed-account: "99457"
+  creditor-account: "0000299448"
+  creditor-iban: "AE310530000011070400001"
+  legacy-iban: "AE420530000023019467023"
+
+legacy:
+  path: ${base-url}/ahb-legacy-banking-adapter.${namespace}

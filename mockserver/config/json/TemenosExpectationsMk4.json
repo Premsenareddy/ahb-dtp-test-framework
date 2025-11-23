@@ -1,0 +1,288 @@
+[
+  {
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1.0.0/customers"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "header": {
+          "transactionStatus": "Live",
+          "audit": {
+            "T24_time": 1377,
+            "parse_time": 1,
+            "responseParse_time": 78,
+            "requestParse_time": 124,
+            "versionNumber": "1"
+          },
+          "id": "205879",
+          "status": "success"
+        },
+        "body": {
+          "customerMnemonic": "AH89E2ED",
+          "sectorId": 1501,
+          "streets": [
+            {
+              "street": "mock address"
+            }
+          ],
+          "nationalityId": "AE",
+          "displayNames": [
+            {
+              "displayName": "."
+            },
+            {
+              "displayName": "Testxiqlh null"
+            }
+          ],
+          "customerNames": [
+            {
+              "customerName": "."
+            },
+            {
+              "customerName": "Testxiqlh null"
+            }
+          ],
+          "language": 1,
+          "amlCheck": "NULL",
+          "residenceId": "AE",
+          "target": 1,
+          "customerStatus": 21,
+          "industryId": 8200,
+          "accountOfficerId": 14,
+          "customerCompany": "GB0010001",
+          "amlResult": "NULL"
+        }
+      }
+    }
+  },
+  {
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1.0.0/accounts/savings"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "header": {
+            "transactionStatus": "Live",
+            "audit": {
+              "T24_time": 8254,
+              "responseParse_time": 3,
+              "requestParse_time": 120
+            },
+            "aaaId": "AAACT20111VJ5XH0V5",
+            "status": "success"
+          },
+          "body": {
+            "arrangementActivity": {
+              "arrangementId": "AA20111ZKD2C",
+              "activityId": "ACCOUNTS-NEW-ARRANGEMENT",
+              "productId": "ALHILAL.ACCOUNT.CURRENT",
+              "parties": [
+                {
+                  "partyRole": "OWNER",
+                  "partyId": "205879"
+                }
+              ],
+              "currencyId": "AED",
+              "effectiveDate": "2020-04-20"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "priority": 10,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1.0.0/accounts/.*/list"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "header": {
+            "audit": {
+              "T24_time": 1653,
+              "parse_time": 0
+            },
+            "page_start": 1,
+            "page_token": "202004204754674787.01,99",
+            "total_size": 1,
+            "page_size": 99
+          },
+          "body": [
+            {
+              "accountId": 274585,
+              "accountName": ".",
+              "customerId": "205879",
+              "currency": "AED",
+              "productName": "Current Account"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "priority": 10,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1.0.0/accounts/.*"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "header": {
+            "audit": {
+              "T24_time": 390,
+              "parse_time": 0
+            },
+            "page_start": 1,
+            "page_token": "202004201205874859.01,99",
+            "total_size": 1,
+            "page_size": 99
+          },
+          "body": [
+            {
+              "arrangementId": "AA20111ZKD2C",
+              "IBAN": "GB21DEMO60161300274585",
+              "clearedBalance": 1000,
+              "productId": "ALHILAL.ACCOUNT.CURRENT",
+              "displayName": ".",
+              "productGroupId": "ISLAMIC.ACCOUNTS",
+              "sortCode": "601613",
+              "productName": "Current Account",
+              "customerName": ".",
+              "availableBalance": 1000,
+              "accountId": "274585",
+              "availableLimit": "NOLIMIT",
+              "availableFunds": 1000,
+              "workingBalance": 1000,
+              "onlineActualBalance": 1000,
+              "customerId": "205879",
+              "currencyId": "AED",
+              "openingDate": "2020-04-20"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "priority": 10,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/ALPHADEMO/api/v1.0.0/party/transactions/account/.*/date/.*"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "header": {
+            "data": {
+              "accountId": "274585",
+              "customerId": "205879",
+              "closingBalance": "1000",
+              "accountCurrency": "AED",
+              "openingBalance": "0",
+              "customerName": ". Testxiqlh null"
+            },
+            "audit": {
+              "T24_time": 1603,
+              "parse_time": 0
+            },
+            "page_start": 1,
+            "page_token": "202004209499374861.00,50",
+            "total_size": 1,
+            "page_size": 50
+          },
+          "body": [
+            {
+              "remittanceInformation": "From Acc.No. - 91014",
+              "auditTimeDate": "2105-05-20",
+              "bookingDate": "2020-04-20",
+              "valueDate": "2020-04-20",
+              "credit": 1000,
+              "transactionTypeName": "Transfer In",
+              "transactionId": "FT201115TFDR"
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1.0.0/transactions"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": [
+          "application/json"
+        ]
+      },
+      "body": {
+        "json": {
+          "body": {
+            "creditAmount": "10.00",
+            "creditCurrencyId": "AED",
+            "debitCurrencyId": "AED",
+            "transactionType": "AC",
+            "debitAccountId": "0000274585",
+            "creditAccountId": "0000125757"
+          }
+        }
+      }
+    }
+  },
+  {
+    "priority": 5,
+    "httpRequest": {
+      "path": "/api/v1.0.0/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "httpRequest": {
+        "socketAddress": {
+          "host": "alhilalpoc.uaenorth.cloudapp.azure.com",
+          "port": 9089
+        }
+      }
+    }
+  }
+]

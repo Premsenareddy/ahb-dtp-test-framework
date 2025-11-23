@@ -1,0 +1,84 @@
+test-env: STG
+namespace: obp-stg
+
+base-path: /alpha/v1.0
+base-url: http://localhost:8180/service
+
+
+authentication-adapter:
+  path: ${base-url}/alpha-authentication-adapter.${namespace}
+  apiKey: "5eba78ed-8ddd-44fb-aad0-d1248343f56e"
+  apiKey_disable_device: "5c6cdadd-c6fa-4b65-b8f8-a18876201a09"
+
+idnow-idv-adapter:
+  path: ${base-url}/alpha-idnow-idv-adapter.${namespace}
+  webhook: https://api.stg.alpha-platform.uk/alpha/v1.0
+  apiKey: ""
+
+banking-adapter:
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  apiKey: "72a7452d-06e9-4d78-9d98-5c6be11d0896"
+  #  this will need updating when new CB gets to stg
+  banking-user-password: ""
+  banking-user-deviceId: ""
+  banking-user-userId: ""
+  banking-user-accountNumber: ""
+
+certificate-service:
+  path: ${base-url}/alpha-certificate-service.${namespace}
+  apiKey: "6094ae3b-6690-4e8a-810f-8bf0e14f52c3"
+
+cif-service:
+  path: ${base-url}/ahb-cif-service.${namespace}
+  apiKey: "471c1b41-4949-4205-9c4b-57c7da2c6c1c"
+
+customer-adapter:
+  path: ${base-url}/alpha-customer-adapter.${namespace}
+  apiKey: "a9db7a53-e8ee-47f9-8fbd-e01430c14b14"
+
+otp-service:
+  path: ${base-url}/alpha-otp-service.${namespace}
+  apiKey: "9388aa789-9288-1992-1892da98a"
+
+payment-service:
+  path: ${base-url}/alpha-payment-service.${namespace}
+  apiKey: "f2cf3f7d-0433-4319-a807-315d5690247a"
+  transfer-limit: "50000"
+  max-payment-limit: "250000"
+  max-unauth-limit: "50000"
+  dependant-id: "770be52b-8bb2-3f89-8dbc-079f4905d061"
+
+cards:
+  path: ${base-url}/ahb-card-hps-adapter.${namespace}
+  apiKey: "949f580b-8395-4ff6-9262-5c8fd6200a76"
+  created-card: "4714840000000406"
+
+devsim-service:
+  path: ${base-url}/alpha-development-simulator-service.${namespace}
+  apiKey: "11c9ecc6-0bfb-4c24-87f3-86e63af5a3d5"
+
+iban-service:
+  path: ${base-url}/alpha-iban-adapter.${namespace}
+  apiKey: "5554661f-2aed-4568-a37b-b9f7b73e4914"
+
+sanctions-aml-adapter:
+  path: ${base-url}/ahb-sanctions-aml-adapter.${namespace}
+  apiKey: "d029208b-9e02-44b7-89f1-baf5c5b5ac15"
+
+document-adapter:
+  path: ${base-url}/alpha-document-adapter.${namespace}
+  apiKey: ""
+
+utility-payments-adapter:
+  path: ${base-url}/alpha-utility-payments-adapter.${namespace}
+  apiKey: ""
+  created: ""
+
+temenos:
+  path: ${base-url}/alpha-temenos-banking-adapter.${namespace}
+  seed-account: "91014"
+  creditor-account: "018161120002"
+  creditor-iban: "AE310530000011070400001"
+
+legacy:
+  path: ${base-url}/ahb-legacy-banking-adapter.${namespace}

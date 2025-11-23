@@ -1,0 +1,116 @@
+env:
+  APP_IMAGE_NAME: "ahb-dtp-test-framework"
+  CICD_SCRIPTS_VERSION: "v15-0-0"
+steps:
+  - label: ":male-scientist: RBAC Tests Experience-Dev"
+    if: build.branch == 'main'
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Experience/RBAC_Tests_Exp-Dev.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - label: ":male-scientist: RBAC Tests Experience-Cit"
+    if: build.branch == 'main'
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Experience/RBAC_Tests_Exp-Cit.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - label: ":male-scientist: RBAC Tests Experience-Sit"
+    if: build.branch == 'main'
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Experience/RBAC_Tests_Exp-Sit.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+
+  - wait: ~
+    continue_on_failure: true
+
+
+
+  - label: ":male-scientist: RBAC Tests Experience-Nft"
+    if: build.branch == 'main'
+    env:
+      ENV_ID: "nft-pv"
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Experience/RBAC_Tests_Exp-Nft.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - label: ":male-scientist: RBAC Tests Experience-Stg"
+    if: build.branch == 'main'
+    env:
+      ENV_ID: "stg-pv"
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Experience/RBAC_Tests_Exp-Stg.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+
+
+
+
+
+
+  - wait: ~
+    continue_on_failure: true
+
+
+  - label: ":male-scientist: RBAC Tests Platform-Dev"
+    if: build.branch == 'main'
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Platform/RBAC_Tests_Plat-Dev.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - label: ":male-scientist: RBAC Tests Platform-Cit"
+    if: build.branch == 'main'
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Platform/RBAC_Tests_Plat-Cit.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - label: ":male-scientist: RBAC Tests Platform-Sit"
+    if: build.branch == 'main'
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Platform/RBAC_Tests_Plat-Sit.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+
+
+
+
+
+  - wait: ~
+    continue_on_failure: true
+
+  - label: ":male-scientist: RBAC Tests Platform-Nft"
+    if: build.branch == 'main'
+    env:
+      ENV_ID: "nft-pv"
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Platform/RBAC_Tests_Plat-Nft.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"
+  - label: ":male-scientist: RBAC Tests Platform-Stg"
+    if: build.branch == 'main'
+    env:
+      ENV_ID: "stg-pv"
+    command:
+      - "source /build_scripts/${CICD_SCRIPTS_VERSION}/app/azure-login.sh kube"
+      - "scripts/RBAC/Platform/RBAC_Tests_Plat-Stg.sh"
+    timeout_in_minutes: 15
+    agents:
+      queue: "${K8S_BUILD_QUEUE}"

@@ -1,0 +1,90 @@
+version: '2.1'
+# Use this docker file to quickly bring up any docker images  required for development.services:
+services:
+
+  postgresql:
+    image: postgres:9.6
+    container_name: postgresql
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "alpha"
+      POSTGRES_PASSWORD: "alpha"
+    volumes:
+      - ./db-init-scripts:/docker-entrypoint-initdb.d
+
+#  mysql:
+#    image: mysql/mysql-server:8.0
+#    restart: always
+#    ports:
+#      - "3306:3306"
+#    command: ["mysqld", "--default-authentication-plugin=mysql_native_password"]
+#    environment:
+#      MYSQL_ROOT_PASSWORD: alpha
+#      MYSQL_DATABASE: mysql
+#      MYSQL_USER: alpha
+#      MYSQL_PASSWORD: alpha
+
+  redis:
+    image: redis:latest
+    hostname: redis
+    ports:
+      - "6379:6379"
+
+  zoo1:
+    image: zookeeper:3.4.9
+    hostname: zoo1
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zoo1:2888:3888
+    volumes:
+      - ~/docker-volumes/zk-single-kafka-single/zoo1/data:/data
+      - ~/docker-volumes/zk-single-kafka-single/zoo1/datalog:/datalog
+
+  kafka1:
+    image: confluentinc/cp-kafka:5.2.1
+    hostname: kafka1
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zoo1:2181"
+      KAFKA_LOG4J_LOGGERS: "kafka.controller=INFO,kafka.producer.async.DefaultEventHandler=INFO,state.change.logger=INFO"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ~/docker-volumes/zk-single-kafka-single/kafka1/data:/var/lib/kafka/data
+    depends_on:
+      - zoo1
+
+#  flowable-all-in-one-app:
+#    image: flowable/all-in-one:6.4.2.1
+#    depends_on:
+#      - postgresql
+#    environment:
+#      - SERVER_PORT=9977
+#      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql:5432/flowable
+#      - SPRING_DATASOURCE_USERNAME=alpha
+#      - SPRING_DATASOURCE_PASSWORD=alpha
+#    ports:
+#      - 8080:8080
+#    entrypoint: ["/wait-for-something.sh", "postgresql", "5432", "PostgreSQL", "/opt/tomcat/bin/catalina.sh", "run"]
+
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.0
+#    container_name: elasticsearch
+#    volumes:
+#      - ~/docker-volumes/elasticsearch/data
+#    environment:
+#      - node.name=elasticsearch
+#      - cluster.name=es-docker-cluster
+#      - discovery.seed_hosts=elasticsearch1,elasticsearch2
+#      - cluster.initial_master_nodes=elasticsearch1,elasticsearch2,elasticsearch3
+#      - bootstrap.memory_lock=true
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#    ports: ['9200:9200']

@@ -1,0 +1,56 @@
+[
+  {
+    "priority" : 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1.0.0/accounts/savings"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": "{\n  \"header\": {\n    \"transactionStatus\": \"Live\",\n    \"audit\": {\n      \"T24_time\": 4782,\n      \"responseParse_time\": 3,\n      \"requestParse_time\": 168\n    },\n    \"aaaId\": \"AAACT201115T2KRSQR\",\n    \"status\": \"success\"\n  },\n  \"body\": {\n    \"arrangementActivity\": {\n      \"arrangementId\": \"AA20111Y3Z22\",\n      \"activityId\": \"ACCOUNTS-NEW-ARRANGEMENT\",\n      \"productId\": \"ALHILAL.ACCOUNT.CURRENT\",\n      \"parties\": [\n        {\n          \"partyRole\": \"OWNER\",\n          \"partyId\": \"205808\"\n        }\n      ],\n      \"currencyId\": \"AED\",\n      \"effectiveDate\": \"2020-04-20\"\n    }\n  }\n}\n"
+    }
+  },{
+  "priority" : 10,
+  "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1.0.0/customers"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": "{\n  \"header\": {\n    \"transactionStatus\": \"Live\",\n    \"audit\": {\n      \"T24_time\": 3989,\n      \"parse_time\": 1,\n      \"responseParse_time\": 86,\n      \"requestParse_time\": 127,\n      \"versionNumber\": \"1\"\n    },\n    \"id\": \"205808\",\n    \"status\": \"success\"\n  },\n  \"body\": {\n    \"customerMnemonic\": \"AH2A7FA2\",\n    \"sectorId\": 1501,\n    \"streets\": [\n      {\n        \"street\": \"mock address\"\n      }\n    ],\n    \"nationalityId\": \"AE\",\n    \"displayNames\": [\n      {\n        \"displayName\": \".\"\n      },\n      {\n        \"displayName\": \"Testsmywb null\"\n      }\n    ],\n    \"customerNames\": [\n      {\n        \"customerName\": \".\"\n      },\n      {\n        \"customerName\": \"Testsmywb null\"\n      }\n    ],\n    \"language\": 1,\n    \"amlCheck\": \"NULL\",\n    \"residenceId\": \"AE\",\n    \"target\": 1,\n    \"customerStatus\": 21,\n    \"industryId\": 8200,\n    \"accountOfficerId\": 14,\n    \"customerCompany\": \"GB0010001\",\n    \"amlResult\": \"NULL\"\n  }\n}\n"
+    }
+  },{
+  "priority" : 10,
+  "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1.0.0/accounts/.*/list"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": " {\n    \"header\" : {\n      \"audit\" : {\n        \"T24_time\" : 5553,\n        \"parse_time\" : 0\n      },\n      \"page_start\" : 1,\n      \"page_token\" : \"202004206266443305.01,99\",\n      \"total_size\" : 1,\n      \"page_size\" : 99\n    },\n    \"body\" : [ {\n      \"accountId\" : 273899,\n      \"accountName\" : \".\",\n      \"customerId\" : \"205808\",\n      \"currency\" : \"AED\",\n      \"productName\" : \"Current Account\"\n    } ]\n  }\n"
+    }
+  },
+  {
+    "priority" : 5,
+    "httpRequest": {
+      "path": "/api/v1.0.0/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "httpRequest": {
+        "socketAddress": {
+          "host": "alhilalpoc.uaenorth.cloudapp.azure.com",
+          "port": 9089
+        }
+      }
+    }
+  }
+]

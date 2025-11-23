@@ -1,0 +1,31 @@
+package uk.co.deloitte.banking.ahb.dtp.test.cards.models.activateCard;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.micronaut.core.annotation.Introspected;
+import lombok.*;
+
+import javax.validation.Valid;
+
+@Getter(onMethod_ = @Valid)
+@Setter(onParam_ = @Valid)
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Introspected
+public class ActivateCard1 {
+
+    @JsonProperty("CardNumber")
+    private String cardNumber;
+    @JsonProperty("LastFourDigits")
+    private String lastFourDigits;
+    @JsonProperty("CardNumberFlag")
+    private String cardNumberFlag;
+    @JsonProperty("CardExpiryDate")
+    private String cardExpiryDate;
+    @JsonProperty("ModificationOperation")
+    private ModificationOperation modificationOperation;
+    @JsonProperty("OperationReason")
+    private String operationReason;
+}

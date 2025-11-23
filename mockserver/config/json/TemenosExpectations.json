@@ -1,0 +1,15 @@
+[
+  {
+    "httpRequest": {
+      "path": "/api/v1.0.0/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "httpRequest": {
+        "socketAddress": {
+          "host": "alhilalpoc.uaenorth.cloudapp.azure.com",
+          "port": 9089
+        }
+      }
+    }
+  }
+]
