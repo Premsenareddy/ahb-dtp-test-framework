@@ -1,178 +1,175 @@
-AHB DTP Test Automation Framework
+# AHB DTP Test Automation Framework
 
+![Java](https://img.shields.io/badge/Java-17-blue)
+![Micronaut](https://img.shields.io/badge/Micronaut-Framework-1f8dd6)
+![Gradle](https://img.shields.io/badge/Build-Gradle-02303A)
+![Docker](https://img.shields.io/badge/Docker-Ready-0db7ed)
+![Performance](https://img.shields.io/badge/Performance-Gatling-orange)
+![GitHub Actions](https://img.shields.io/badge/CI-GitHub%20Actions-success)
 
+A modular, scalable **API Test Automation Framework** built using **Java 17**, **Micronaut**, **Gradle**, and integrated tooling such as **MockServer**, **Kubernetes Port Forwarding**, and **Gatling** for performance testing.
 
+This framework demonstrates enterprise-grade QA automation practices:
 
+- Clean layered architecture  
+- Environment-based execution  
+- BDD/Gherkin-style modelling  
+- API journey validations  
+- CI-ready project structure  
+- Reusable utilities & data builders  
+- K8s port-forward workflow for backend services  
 
+---
 
+## 📁 **Project Structure**
 
-
-
-
-A modular, scalable API Test Automation Framework built using Java 17, Micronaut, Gradle, and integrated tooling such as MockServer, Kubernetes Port Forwarding, and Gatling for performance tests.
-
-This project demonstrates enterprise-grade automation engineering practices:
-
-Clean layered architecture
-
-Environment-based execution
-
-BDD/Gherkin style modelling
-
-API journey validations
-
-CI-ready project structure
-
-Reusable helpers & test data builders
-
-K8s port-forward workflow for backend services
-
-📁 Project Structure
 ahb-dtp-test-framework
 │
-├── src/                      # Test code (API, journeys, validations)
-├── assets/                   # Images, test screenshots (optional)
-├── mockserver/               # Service virtualization
-├── kube/                     # K8s manifests & configs
-├── scripts/                  # Execution helpers
-├── setup/                    # Dev/QE environment setup
-├── secret/                   # (Placeholder – contains no secrets)
+├── src/ # Test code (APIs, journeys, validations)
+├── assets/ # Images, test screenshots (optional)
+├── mockserver/ # Service virtualization configs
+├── kube/ # Kubernetes manifests & port-forward setup
+├── scripts/ # Execution helpers
+├── setup/ # Dev/QE environment setup
+├── secret/ # Placeholder (contains no secrets)
 │
-├── Dockerfile                # Containerized runtime
-├── build.gradle              # Gradle build
+├── Dockerfile # Containerized runtime
+├── build.gradle # Gradle build config
 ├── gradle.properties
-└── skaffold.yaml             # CI/CD orchestration
+├── skaffold.yaml # CI/CD orchestration
+└── README.md
 
-🏗 High-Level Architecture
-          +---------------------------+
-          |        Test Runner        |
-          |     (Gradle / JUnit5)     |
-          +-------------+-------------+
-                        |
-        +---------------+---------------+
-        |     Test Layers & Helpers     |
-        |   (BDD, Steps, Validators)    |
-        +---------------+---------------+
-                        |
-       +----------------+----------------+
-       |     API Interaction Layer       |
-       |   (Micronaut HTTP Clients)      |
-       +----------------+----------------+
-                        |
-  +----------------------+----------------------+
-  |    External Microservices / Bank APIs       |
-  +----------------------+----------------------+
-                        |
-       +---------------------------------------+
-       |     MockServer / Kubernetes Proxy     |
-       |   (Service Virtualization / Port FW)  |
-       +---------------------------------------+
+yaml
+Copy code
 
-▶️ Running Tests
-1️⃣ Port-forward to the required environment
+---
+
+## 🏗 **High-Level Architecture**
+
++---------------------------+
+| Test Runner |
+| (Gradle / JUnit5) |
++-------------+-------------+
+|
++-------------+-------------+
+| Test Layers & Helpers |
+| (BDD, Steps, Validators) |
++-------------+-------------+
+|
++-------------+-------------+
+| API Interaction Layer |
+| (Micronaut HTTP Clients) |
++-------------+-------------+
+|
++---------------------------+
+| External Services / APIs |
++---------------------------+
+|
++---------------------------+
+| MockServer / K8s Port FW |
+| (Service Virtualization) |
++---------------------------+
+
+yaml
+Copy code
+
+---
+
+## ▶️ **Running Tests**
+
+### **1️⃣ Setup Port Forwarding**
+
+Expose backend services locally:
+
+```bash
 ./startPortForward.sh obp-dev
 # or
 ./startPortForward.sh obp-cit
+2️⃣ Run API Test Suites
+Dev environment:
 
-2️⃣ Run test suites
-
-Dev:
-
+bash
+Copy code
 MICRONAUT_ENVIRONMENTS=dev ./gradlew clean test
+CIT environment:
 
-
-CIT:
-
+bash
+Copy code
 MICRONAUT_ENVIRONMENTS=cit ./gradlew clean test
+🧪 BDD / Gherkin Test Modelling
+Scenarios follow a BDD-friendly format:
 
-🧪 BDD / Gherkin Style
+pgsql
+Copy code
+TEST   – Scenario summary
+GIVEN  – Preconditions
+WHEN   – Action executed
+THEN   – Assertions
+DONE   – End of test
+🧿 Mock Server
+For downstream API simulation:
 
-Tests follow a clear BDD structure:
-
-TEST    – Summary of scenario
-GIVEN   – Preconditions (Mocks, Users, Accounts)
-WHEN    – Action executed
-THEN    – Assertions / expected behaviour
-DONE    – End of test
-
-🧿 Mock Server (Service Virtualization)
-
-Used to isolate dependencies:
-
+bash
+Copy code
 cd mockserver
 ./runMockServer.sh
+Used for:
 
-
-Useful for:
+Unstable dependencies
 
 Negative testing
 
-Edge-case simulation
+Edge cases
 
-Dependency unavailability
-
-Contract-based testing
+Integration isolation
 
 📈 Performance Testing (Gatling)
+Ensure E2E tests pass first:
 
-Run e2e first:
+bash
+Copy code
+MICRONAUT_ENVIRONMENTS=dev ./gradlew clean test --tests "uk.co.company.journey.*"
+Then run Gatling:
 
-MICRONAUT_ENVIRONMENTS=dev ./gradlew clean test --tests uk.co.company.journey.*
-
-
-Then execute Gatling simulation:
-
+bash
+Copy code
 ./gradlew clean gatlingRun-perf.simulation.PaymentLoadTest
-
-
-Generates HTML performance reports including:
-
-Response time percentiles
-
-Throughput
-
-Error rate
-
-Latency distribution
+Produces detailed HTML performance reports.
 
 🧪 Test Strategy Overview
 ✔ API Testing
-
 Status codes
 
-Payload validation
+JSON body validation
 
-Business logic checks
+Business rules
 
-Negative & boundary cases
+Negative cases
 
-Journey-level flows
+Journey validations
 
 ✔ Integration Testing
+K8s service-to-service flows
 
-K8s service-to-service interactions
-
-Using MockServer for unstable services
+MockServer for dependencies
 
 Environment toggles
 
 ✔ Performance Testing
+Load & stress tests
 
-Load & stress scenarios
+Latency & throughput
 
-Latency KPIs
+Regression performance
 
-Baseline comparisons
-
-✔ Security & Contract Testing
-
-JWT handling
+✔ Security / Contract Testing (Optional)
+JWT token handling
 
 Contract mocks
 
-API schema validation
+Response schema validation
 
-🛠 Tech Stack
+🛠 Tech Stack Summary
 Category	Tools
 Language	Java 17
 Framework	Micronaut
@@ -181,24 +178,24 @@ CI/CD	GitHub Actions, Skaffold
 Containers	Docker
 Virtualization	MockServer
 Performance	Gatling
-Orchestration	Kubernetes (port-forwarding)
+Orchestration	Kubernetes
+
 🤝 Contributions & Usage
+This framework highlights:
 
-This repository demonstrates:
+Enterprise-class QA engineering
 
-Enterprise-grade banking QA engineering
+Real-world API automation structure
 
-Modern API automation design
+Performance engineering techniques
 
-Performance engineering practices
+Clean architecture principles
 
-Clean, scalable project structure
-
-Great for learning, interviews, or portfolio demonstration.
+Feel free to use or adapt for learning, interviews, or portfolio enhancement.
 
 📬 Contact
-
 Premsena Reddy Anumandla
 Senior QA Automation Engineer
+
 GitHub: @Premsenareddy
 LinkedIn: https://www.linkedin.com/in/premsena-anumandla-a802b4179/
